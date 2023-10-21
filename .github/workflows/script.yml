@@ -1,0 +1,37 @@
+name: Test Shell Script
+
+on:
+  push:
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: db_environment
+        description: Select the DB Env
+        options:
+        - LMDA
+        - LMDB
+
+
+jobs:
+  script:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.db_environment }}
+  
+    steps:
+     
+      - name: code checkout
+        uses: actions/checkout@v3
+
+      - name: Run a one-line script
+        env:
+          DB_USERNAME: ${{ secrets.ORACLE_DB_PORT }}
+          DB_HOSTNAME: ${{ secrets.ORACLE_DB_HOSTNAME }}
+          cred_id: ${{ secrets.CREDENTIALS_ID }}
+        run: |
+          bash ./POC.sh
+        
+      - uses: actions/upload-artifact@v3
+        name: Upload Artifact
+        with:
+          name: SecretsVariables
+          path: "poc.txt"
