@@ -119,7 +119,7 @@ jobs:
     if: ${{ always() && needs.post_db_update == 'failure' && needs.approval_job_for_deployment_Rollback.result == 'success' }}   #${{ failure() && !skipped() }}  # failure() 
 
     steps:
-      - name: Checkout Repository
+  
       - name: Running Deployment Rollback
         run: echo "Rollback Deployment"
 
