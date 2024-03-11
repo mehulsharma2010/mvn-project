@@ -68,6 +68,7 @@ jobs:
       - name: HealthCheck Job
         run: | 
           echo "Running Healthcheck"
+          exit 1
   
   wait_job_for_deployment_Rollback:
     name: "Wait for approval to deploy"
