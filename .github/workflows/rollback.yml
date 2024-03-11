@@ -22,8 +22,13 @@ jobs:
         - name: Checkout repository
           uses: actions/checkout@v2
 
+        - name: Set URL Variable if Blank
+          id: defaulturl
+          run: |
+            USER_INPUT=${{ github.event.inputs.url }}
+            echo "value=${USER_INPUT:-"Testing.145.e"}" >> "$GITHUB_OUTPUT"
+           
         - name: Rollback
           run: |
             echo "Rollback"
-            echo "Tag number is: ${{ env.TAG_NUMBER }}"
-            
+            echo "Tag number is: ${{ steps.defaulturl.outputs.value }}"
