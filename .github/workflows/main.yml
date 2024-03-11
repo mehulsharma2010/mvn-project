@@ -115,7 +115,7 @@ jobs:
   rollback_deployment:
     name: "Rollback Deployment"
     runs-on: ubuntu-latest
-    needs: [approval_job, db_update]
+    needs: [approval_job_for_deployment_Rollback, post_db_update]
     if: ${{ always() && needs.post_db_update == 'failure' && needs.approval_job_for_deployment_Rollback.result == 'success' }}   #${{ failure() && !skipped() }}  # failure() 
 
     steps:
