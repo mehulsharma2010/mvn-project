@@ -25,3 +25,4 @@ jobs:
         - name: Rollback
           run: |
             echo "Rollback"
+            echo ${{ env.TAG_NUMBER }}
