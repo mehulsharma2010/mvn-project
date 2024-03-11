@@ -12,6 +12,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Trigger HealthCheck
+        run: |
+          echo "Test"
+          exit 1
+
       # Add your main workflow steps here
 
   notify_failure:
