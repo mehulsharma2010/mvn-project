@@ -25,7 +25,7 @@ jobs:
         - name: Set URL Variable if Blank
           id: defaulturl
           run: |
-            USER_INPUT=${{ github.event.inputs.url }}
+            USER_INPUT=${{ github.event.inputs.TAG_NUMBER }}
             echo "value=${USER_INPUT:-"Testing.145.e"}" >> "$GITHUB_OUTPUT"
            
         - name: Rollback
