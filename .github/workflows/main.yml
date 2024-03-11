@@ -124,6 +124,13 @@ jobs:
       - name: Running Deployment Rollback
         run: echo "Rollback Deployment"
 
+      - name: Trigger Failure Handler Workflow
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          repository: mehulsharma2010/mvn-project
+          event-type: if_failure
+
   rollback_db_update:
     name: "Rollback of DB"
     runs-on: ubuntu-latest
@@ -134,9 +141,3 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Trigger Failure Handler Workflow
-        uses: peter-evans/repository-dispatch@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          repository: mehulsharma2010/mvn-project
-          event-type: if_failure
