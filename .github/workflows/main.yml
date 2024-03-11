@@ -1,6 +1,6 @@
 name: Workflow1
 on:
-  push: ["master"]
+  push:
   
 jobs:
   db_update:
@@ -140,4 +140,4 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           repository: mehulsharma2010/mvn-project
           event-type: if_failure
-          
+
