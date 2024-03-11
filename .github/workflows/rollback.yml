@@ -1,15 +1,16 @@
 name: "Rollback Workflow"
 
-on:      
-  repository_dispatch:
-    types: [if_failure]
+on:  
   workflow_dispatch:
     inputs:
       release-version:
         description: 'TAG_NUMBER'
         required: true
         default: "lynx-releases-6.14.1-2023-12-04-080835-581"
-        
+    
+  repository_dispatch:
+    types: [if_failure]
+    
 env:
   TAG_NUMBER: "${{ github.event.inputs.release-version }}"
 
