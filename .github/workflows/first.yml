@@ -1,0 +1,27 @@
+name: Main Workflow
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  main_job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Add your main workflow steps here
+
+  notify_failure:
+    needs: main_job
+    runs-on: ubuntu-latest
+    if: failure()
+    steps:
+      - name: Trigger Failure Handler Workflow
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          repository: mehulsharma2010/mvn-project
+          event-type: handle_failure

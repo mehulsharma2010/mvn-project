@@ -1,6 +1,6 @@
 name: Workflow1
 on:
-  push:
+  push: ["master"]
   
 jobs:
   db_update:
