@@ -1,0 +1,138 @@
+name: Workflow1
+on:
+  push:
+  
+jobs:
+  db_update:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Set variable
+      run: |
+        echo "DB_UPDATE=LMDA" >> $GITHUB_ENV
+        echo "Running First Job"
+
+  wait_job:
+    name: "Wait for approval to deploy"
+    runs-on: ubuntu-latest
+    permissions: write-all
+    needs: ['db_update']
+    if: ${{ always() && !cancelled() }}
+    steps:
+      - name: Get Code
+        uses: actions/checkout@v2
+      - name: "Check and Cancel Job"
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          total_sleep_time=120 # Total sleep time in seconds
+          check_interval=15    # Check interval in seconds
+
+          # Calculate the number of iterations needed
+          iterations=$((total_sleep_time / check_interval))
+
+          # Loop for the specified number of iterations
+          for ((i = 0; i < iterations; i++)); do
+            status=$(gh run view ${{ github.run_id }} --json status | jq -r .status)
+
+            if [ "$status" != "waiting" ]; then
+              total_sleep_time=300 # New total sleep time in seconds
+              # Exit the loop and script
+              exit 0
+            fi
+            sleep $check_interval
+          done        
+          gh run cancel ${{ github.run_id }}
+
+  approval_job:
+    name: "Approval Run"
+    runs-on: ubuntu-latest
+    environment: approval
+    needs: ['db_update']
+    if: ${{ always() && !cancelled() }}
+    steps:
+    - name: Approved for Deployment
+      run: |
+        echo "Deployment Approved."
+
+  post_db_update:
+    name: "Deployment Job"
+    needs: [db_update, approval_job]
+    if: success()
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set Variables
+        run: |
+          echo "Running post db update job."
+      
+      - name: HealthCheck Job
+        run: | 
+          echo "Running Healthcheck"
+  
+  wait_job_for_deployment_Rollback:
+    name: "Wait for approval to deploy"
+    runs-on: ubuntu-latest
+    permissions: write-all
+    needs: ['post_db_update']
+    if: ${{ failure() && !cancelled() }}
+    steps:
+      - name: Get Code
+        uses: actions/checkout@v2
+      - name: "Check and Cancel Job"
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          total_sleep_time=120 # Total sleep time in seconds
+          check_interval=15    # Check interval in seconds
+
+          # Calculate the number of iterations needed
+          iterations=$((total_sleep_time / check_interval))
+
+          # Loop for the specified number of iterations
+          for ((i = 0; i < iterations; i++)); do
+            status=$(gh run view ${{ github.run_id }} --json status | jq -r .status)
+
+            if [ "$status" != "waiting" ]; then
+              total_sleep_time=300 # New total sleep time in seconds
+              # Exit the loop and script
+              exit 0
+            fi
+            sleep $check_interval
+          done        
+          gh run cancel ${{ github.run_id }}
+
+  approval_job_for_deployment_Rollback:
+    name: "Approval Run"
+    runs-on: ubuntu-latest
+    environment: approval
+    needs: ['post_db_update']
+    if: ${{ failure() && !cancelled() }}
+    steps:
+    - name: Approved for Deployment
+      run: |
+        echo "Rollback of Deployment Approved."
+
+  rollback_deployment:
+    name: "Rollback Deployment"
+    runs-on: ubuntu-latest
+    needs: [approval_job, db_update]
+    if: ${{ always() && needs.post_db_update == 'failure' && needs.approval_job_for_deployment_Rollback.result == 'success' }}   #${{ failure() && !skipped() }}  # failure() 
+
+    steps:
+      - name: Checkout Repository
+      - name: Running Deployment Rollback
+        run: echo "Rollback Deployment"
+
+  rollback_db_update:
+    name: "Rollback of DB"
+    runs-on: ubuntu-latest
+    needs: [approval_job, db_update]
+    if: ${{ always() && needs.db_update.result == 'failure' && needs.approval_job.result == 'success' }}   #${{ failure() && !skipped() }}  # failure() 
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set Variables
+        run: |
+          echo "Rolling Back DB"
