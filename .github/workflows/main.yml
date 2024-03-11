@@ -134,6 +134,10 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Set Variables
-        run: |
-          echo "Rolling Back DB"
+      - name: Trigger Failure Handler Workflow
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          repository: mehulsharma2010/mvn-project
+          event-type: if_failure
+          
