@@ -30,5 +30,4 @@ jobs:
            
         - name: Rollback
           run: |
-            echo "Rollback"
             echo "Tag number is: ${{ steps.defaulturl.outputs.value }}"
