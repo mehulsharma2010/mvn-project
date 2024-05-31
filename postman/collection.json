@@ -1,23 +1,23 @@
 {
-    "info": {
-      "name": "Sample Collection",
-      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-    },
-    "item": [
-      {
-        "name": "Sample Request",
-        "request": {
-          "method": "GET",
-          "header": [],
-          "url": {
-            "raw": "https://google.com",
-            "protocol": "https",
-            "host": ["api", "example", "com"],
-            "path": ["endpoint"]
-          }
-        },
-        "response": []
-      }
-    ]
-  }
-  
+  "info": {
+    "name": "Google Books API Collection",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Get Books",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://www.googleapis.com/books/v1/volumes?q=harry+potter",
+          "protocol": "https",
+          "host": ["www", "googleapis", "com"],
+          "path": ["books", "v1", "volumes"],
+          "query": [{"key": "q", "value": "harry potter"}]
+        }
+      },
+      "response": []
+    }
+  ]
+}
