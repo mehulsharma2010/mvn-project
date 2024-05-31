@@ -20,14 +20,15 @@ jobs:
     - name: Install Newman
       run: |
         npm install -g newman
-        npm install newman-reporter-html
 
     - name: Create results directory
       run: mkdir -p output
 
     - name: Run Postman collection
-      run: newman run postman/collection.json --reporters html --reporter-html-export output/report.html
-      # --environment <path-to-your-environment.json> (If we have env also )
+      run: |
+        npm install newman-reporter-html
+        newman run postman/collection.json --reporters html --reporter-html-export output/report.html
+        # --environment <path-to-your-environment.json> (If we have env also )
     - name: Upload Newman report
       uses: actions/upload-artifact@v3
       with:
