@@ -1,4 +1,4 @@
-name: Postman API Tests
+name: POC | Postman API Tests
 
 on:
   push:
