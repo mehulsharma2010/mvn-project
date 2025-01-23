@@ -14,9 +14,10 @@ on:
           - false
           - true
       push_to_artifactory:
+        type: boolean
         description: 'Push Docker image to Artifactory (true/false)'
-        required: false
-        default: 'true'
+        required: true
+        default: false
 
 env:
   DOCKER_REGISTRY: "mck-ontada-sre.jfrog.io"
