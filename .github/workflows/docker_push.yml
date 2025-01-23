@@ -1,0 +1,73 @@
+name: Docker Build, Push, and WizLab Scan
+
+on:
+  workflow_dispatch:
+    inputs:
+      docker_tag:
+        description: 'Tag for the Docker image'
+        required: true
+        default: 'latest'
+      enable_wizscan:
+        description: 'Enable WizLab Scan (true/false)'
+        type: choice
+        options:
+          - false
+          - true
+      push_to_artifactory:
+        description: 'Push Docker image to Artifactory (true/false)'
+        required: false
+        default: 'true'
+
+env:
+  DOCKER_REGISTRY: "mck-ontada-sre.jfrog.io"
+  DOCKER_REPO: "wildfly/wildfly"
+  WIZSCAN_API_KEY: ${{ secrets.WIZSCAN_API_KEY }}
+
+jobs:
+  build-and-push:
+    name: Build and Push Docker Image
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Login to JFrog
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DEV_PORTAL_JFROG_USERNAME }}
+        password: ${{ secrets.DEV_PORTAL_JFROG_API_KEY }}
+        registry: ${{ env.DOCKER_REGISTRY }} 
+
+    - name: Build Docker Image
+      run: |
+        docker build -t ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_REPO }}:${{ github.event.inputs.docker_tag }} -f Dockerfile.wildfly-26-JDK17 .
+    
+    - name: Push Docker Image
+      run: |
+        docker push ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_REPO }}:${{ github.event.inputs.docker_tag }}
+
+  wizscan:
+    name: WizLab Scan
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.enable_wizscan == 'true' }}
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Run WizLab Scan
+      env:
+        WIZSCAN_API_KEY: ${{ secrets.WIZSCAN_API_KEY }}
+      run: |
+        curl -X POST https://api.wizlabs.io/scan \
+        -H "Authorization: Bearer $WIZSCAN_API_KEY" \
+        -F "image=${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_REPO }}:${{ github.event.inputs.docker_tag }}" \
+        -F "scan_type=docker" -o wizscan-report.json
+
+    - name: Upload Scan Report
+      uses: actions/upload-artifact@v3
+      with:
+        name: wizscan-report
+        path: wizscan-report.json
