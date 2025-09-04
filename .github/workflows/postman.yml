@@ -1,7 +1,7 @@
 name: POC | Postman API Tests
 
 on:
-  push:
+#  push:
   workflow_dispatch:
 
 jobs:
