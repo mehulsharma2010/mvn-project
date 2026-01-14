@@ -1,0 +1,25 @@
+name: Run Script as Diff User
+
+on:
+  push:
+
+
+jobs:
+  run-script-as-jboss:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Ensure jboss user exists (skip this step if the user already exists)
+      - name: Ensure jboss user exists
+        run: |
+          if ! id -u jboss >/dev/null 2>&1; then
+            sudo useradd -m jboss
+          fi
+          
+      # Run the shell script as jboss user
+      - name: Execute script as jboss
+        run: |
+          sudo -u jboss whoami
