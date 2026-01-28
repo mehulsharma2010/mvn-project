@@ -1,0 +1,44 @@
+
+name: "Non-Prod | CD Cloud Workflow"
+
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      deploy-environment:
+        type: choice
+        description: 'Choose environment'
+        options:
+          - prod
+        required: true
+      release-version:
+        description: 'Docker tag'
+        required: true
+
+env:
+  ENV: ${{ github.event.inputs.deploy-environment }}
+  TAG_NUMBER: ${{ github.event.inputs.release-version }}
+
+jobs:
+  maintenance-guard:
+    name: DB Maintenance Guard
+    runs-on: ubuntu-latest
+    environment: db_update
+    steps:
+      - run: echo "No DB maintenance in progress"
+
+  deploy:
+    name: Deploy ${{ github.event.inputs.deploy-environment }}
+    needs: maintenance-guard
+    environment: ${{ github.event.inputs.deploy-environment }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      
+      - name: testing
+        run: |
+          echo "hello"
+

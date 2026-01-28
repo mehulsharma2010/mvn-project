@@ -1,0 +1,33 @@
+
+name: "DB Maintenance | Dual Deployment Control"
+
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      database:
+        description: "Select DB"
+        type: choice
+        required: true
+        options:
+          - LMDA
+          - LMDC
+
+env:
+  NAMESPACE: ${{ vars.namespace }}
+  DEPLOYMENTS: "app-app-perf-fg app-app-perf-bg"
+
+jobs:
+  db-maintenance:
+    name: DB Maintenance
+    runs-on: ubuntu-latest
+    environment: db_update
+
+    steps:
+      - name: Run DB migration
+        run: |
+          echo "Running DB update for ${{ github.event.inputs.database }}"
+          sleep 10000000000000
+
